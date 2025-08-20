@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
+import 'package:recipe_app/features/home/data/repositories/meal_repository_impl.dart';
 import 'package:recipe_app/features/home/presentation/bloc/index.dart';
-import 'package:recipe_app/features/recipe/presentation/bloc/meal_detail_bloc.dart';
 import 'package:recipe_app/features/recipe/presentation/pages/recipe_detail_page.dart';
+import 'package:recipe_app/features/search/domain/usecases/search_meal_usecase.dart';
+import 'package:recipe_app/features/search/presentation/bloc/search_bloc.dart';
 import 'package:recipe_app/features/search/presentation/pages/search_page.dart';
 import 'package:recipe_app/shared/component/index.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -21,7 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   String _selectedCategory = "Beef";
-  final String _location = "American";
+  final String _location = "Vietnamese";
 
   @override
   void initState() {
@@ -56,7 +57,12 @@ class _HomePageState extends State<HomePage> {
                         PageRouteBuilder(
                           pageBuilder:
                               (context, animation, secondaryAnimation) =>
-                                  SearchPage(),
+                                  BlocProvider(
+                                    create: (context) => SearchBloc(
+                                      SearchMealUseCase(MealRepositoryImpl()),
+                                    ),
+                                    child: const SearchPage(),
+                                  ),
                           transitionsBuilder:
                               (context, animation, secondaryAnimation, child) {
                                 const begin = Offset(0.0, 1.0); // từ dưới

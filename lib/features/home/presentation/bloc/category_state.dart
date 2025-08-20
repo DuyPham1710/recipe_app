@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:recipe_app/features/home/domain/entities/category_entity.dart';
 
-// States
 abstract class CategoryState extends Equatable {
   const CategoryState();
 

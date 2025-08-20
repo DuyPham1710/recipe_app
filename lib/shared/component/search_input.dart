@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/core/constants/app_colors.dart';
 
-class SearchInput extends StatelessWidget {
+class SearchInput extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -19,18 +20,39 @@ class SearchInput extends StatelessWidget {
   });
 
   @override
+  State<SearchInput> createState() => _SearchInputState();
+}
+
+class _SearchInputState extends State<SearchInput> {
+  Timer? _debounceTimer;
+
+  void _onChanged(String value) {
+    // Debounce để tránh gọi API quá nhiều
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      widget.onChanged?.call(value);
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: SizedBox(
         height: 38.h,
         child: TextField(
-          controller: controller,
-          autofocus: autoFocus,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
+          controller: widget.controller,
+          autofocus: widget.autoFocus,
+          onChanged: _onChanged,
+          onSubmitted: widget.onSubmitted,
           decoration: InputDecoration(
-            hintText: hintText,
+            hintText: widget.hintText,
             prefixIcon: const Icon(Icons.search, color: Colors.grey),
             filled: true,
             isDense: true,

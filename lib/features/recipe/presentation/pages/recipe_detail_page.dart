@@ -6,7 +6,8 @@ import 'package:recipe_app/core/constants/app_colors.dart';
 import 'package:recipe_app/core/constants/app_strings.dart';
 import 'package:recipe_app/features/home/domain/index.dart';
 import 'package:recipe_app/features/home/data/repositories/index.dart';
-import 'package:recipe_app/features/home/domain/usecases/index.dart';
+import 'package:recipe_app/features/recipe/presentation/bloc/meal_detail_event.dart';
+import 'package:recipe_app/features/recipe/presentation/bloc/meal_detail_state.dart';
 import 'package:recipe_app/features/recipe/presentation/widgets/recipe_info.dart';
 import 'package:recipe_app/features/recipe/presentation/bloc/meal_detail_bloc.dart';
 import 'package:recipe_app/features/recipe/presentation/widgets/recipe_tab.dart';
@@ -24,23 +25,23 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   @override
   Widget build(BuildContext context) {
     final meal = widget.meal;
-    
+
     // Wrap với BlocProvider để cung cấp MealDetailBloc
     return BlocProvider(
-      create: (context) => MealDetailBloc(
-        GetMealByIdUseCase(MealRepositoryImpl()),
-      ),
+      create: (context) =>
+          MealDetailBloc(GetMealByIdUseCase(MealRepositoryImpl())),
       child: BlocListener<MealDetailBloc, MealDetailState>(
         listener: (context, state) {
-          // Không cần làm gì ở đây, chỉ để trigger BlocListener
+          // trigger BlocListener
         },
         child: Builder(
           builder: (context) {
-            // Sử dụng BlocListener để load meal detail sau khi BlocProvider đã được tạo
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<MealDetailBloc>().add(LoadMealDetail(widget.meal.id));
+              context.read<MealDetailBloc>().add(
+                LoadMealDetail(widget.meal.id),
+              );
             });
-            
+
             return _buildRecipeDetailContent(meal);
           },
         ),
@@ -54,9 +55,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       body: SafeArea(
         child: BlocBuilder<MealDetailBloc, MealDetailState>(
           builder: (context, detailState) {
-            // Sử dụng meal detail nếu đã load được, nếu không thì dùng meal cũ
-            final currentMeal = detailState is MealDetailLoaded 
-                ? detailState.meal 
+            final currentMeal = detailState is MealDetailLoaded
+                ? detailState.meal
                 : meal;
 
             return SingleChildScrollView(
@@ -123,7 +123,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
                       SizedBox(height: 30.h),
 
-                      // Thông tin recipe
                       RecipeInfo(meal: currentMeal),
 
                       SizedBox(height: 20.h),
@@ -139,7 +138,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       SizedBox(height: 24.h),
 
                       // Nút xem video chỉ hiển thị khi có YouTube URL
-                      if (currentMeal.youtube != null && currentMeal.youtube!.isNotEmpty)
+                      if (currentMeal.youtube != null &&
+                          currentMeal.youtube!.isNotEmpty)
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
                           child: CustomButton(

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/core/constants/app_colors.dart';
 import 'package:recipe_app/core/constants/app_strings.dart';
 import 'package:recipe_app/shared/component/category_button.dart';
+import 'package:recipe_app/features/search/presentation/bloc/filter_bloc.dart';
+import 'package:recipe_app/features/search/data/repositories/filter_repository_impl.dart';
+import 'package:recipe_app/features/search/domain/usecases/index.dart';
 
 class ModalFilter extends StatefulWidget {
   const ModalFilter({super.key});
@@ -12,18 +16,35 @@ class ModalFilter extends StatefulWidget {
 }
 
 class _ModalFilterState extends State<ModalFilter> {
-  // Danh mục chọn
   String? selectedCategory;
   String? selectedIngredient;
   String? selectedLocation;
 
-  // Data mẫu
-  final categories = ["Danh mục 1", "Danh mục 2", "Danh mục 3", "Danh mục 4"];
-  final ingredients = ["Thịt gà", "Thịt heo", "Danh mục", "Ức gà", "Chân gà"];
-  final locations = ["TP.HCM", "Bình Phước", "Đồng Nai", "An Giang", "Long An"];
-
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => FilterBloc(
+        LoadCategoryUsecase(FilterRepositoryImpl()),
+        LoadAreaUsecase(FilterRepositoryImpl()),
+        LoadIngredientUsecase(FilterRepositoryImpl()),
+        FilterMealsUsecase(FilterRepositoryImpl()),
+      )..add(LoadFilterData()),
+      child: BlocBuilder<FilterBloc, FilterState>(
+        builder: (context, state) {
+          if (state is FilterLoading) {
+            return _buildLoadingModal();
+          } else if (state is FilterError) {
+            return _buildErrorModal(state.message);
+          } else if (state is FilterLoaded) {
+            return _buildFilterModal(state);
+          }
+          return _buildLoadingModal();
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoadingModal() {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.8,
@@ -36,11 +57,69 @@ class _ModalFilterState extends State<ModalFilter> {
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorModal(String error) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.8,
+      maxChildSize: 0.9,
+      minChildSize: 0.3,
+      builder: (context, scrollController) {
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 48.sp, color: Colors.red),
+                SizedBox(height: 16.h),
+                Text(
+                  'Lỗi: $error',
+                  style: TextStyle(fontSize: 16.sp, color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 16.h),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<FilterBloc>().add(LoadFilterData());
+                  },
+                  child: const Text('Thử lại'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterModal(FilterLoaded state) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.9,
+      maxChildSize: 0.9,
+      minChildSize: 0.9,
+      builder: (context, scrollController) {
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+          ),
+          child: ListView(
+            controller: scrollController,
             children: [
               Container(
-                width: 40.w,
+                width: 20.w,
                 height: 4.h,
                 decoration: BoxDecoration(
                   color: Colors.grey[400],
@@ -104,8 +183,7 @@ class _ModalFilterState extends State<ModalFilter> {
               _buildSection(
                 AppStrings.categories,
                 Icons.list_alt,
-                categories,
-
+                state.categories,
                 selectedCategory,
                 (val) {
                   setState(() => selectedCategory = val);
@@ -115,7 +193,7 @@ class _ModalFilterState extends State<ModalFilter> {
               _buildSection(
                 AppStrings.ingredients,
                 Icons.restaurant_menu,
-                ingredients,
+                state.ingredients,
                 selectedIngredient,
                 (val) {
                   setState(() => selectedIngredient = val);
@@ -125,7 +203,7 @@ class _ModalFilterState extends State<ModalFilter> {
               _buildSection(
                 AppStrings.area,
                 Icons.location_on,
-                locations,
+                state.areas,
                 selectedLocation,
                 (val) {
                   setState(() => selectedLocation = val);
@@ -134,6 +212,7 @@ class _ModalFilterState extends State<ModalFilter> {
 
               SizedBox(height: 20.h),
               Divider(),
+
               SizedBox(
                 width: double.infinity,
                 height: 50.h,
@@ -144,15 +223,31 @@ class _ModalFilterState extends State<ModalFilter> {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
+                    // Apply filter
+                    context.read<FilterBloc>().add(
+                      ApplyFilter(
+                        category: selectedCategory,
+                        ingredient: selectedIngredient,
+                        area: selectedLocation,
+                      ),
+                    );
+
+                    // Chờ cho đến khi state là FilterApplied
+                    final state = await context
+                        .read<FilterBloc>()
+                        .stream
+                        .firstWhere((s) => s is FilterApplied);
+
                     Navigator.pop(context, {
-                      "category": selectedCategory,
-                      "ingredient": selectedIngredient,
-                      "location": selectedLocation,
+                      'category': selectedCategory,
+                      'ingredient': selectedIngredient,
+                      'area': selectedLocation,
+                      'meals': (state as FilterApplied).filteredMeals,
                     });
                   },
                   child: Text(
-                    "Xác nhận",
+                    AppStrings.confirm,
                     style: TextStyle(color: Colors.white, fontSize: 16.sp),
                   ),
                 ),

@@ -50,28 +50,6 @@ class OnboardingPage extends StatelessWidget {
                     },
                     icon: const Icon(Icons.arrow_forward, color: Colors.white),
                   ),
-                  // ElevatedButton.icon(
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: AppColors.primary,
-                  //     padding: EdgeInsets.symmetric(
-                  //       horizontal: 20.w,
-                  //       vertical: 12.h,
-                  //     ),
-                  //     shape: RoundedRectangleBorder(
-                  //       borderRadius: BorderRadius.circular(8.r),
-                  //     ),
-                  //   ),
-                  //   onPressed: () {
-                  //     Navigator.pushNamed(context, '/home');
-                  //   },
-
-                  //   label: Text(
-                  //     AppStrings.start,
-                  //     style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                  //   ),
-                  //   icon: const Icon(Icons.arrow_forward, color: Colors.white),
-                  //   iconAlignment: IconAlignment.end,
-                  // ),
                 ],
               ),
             ),

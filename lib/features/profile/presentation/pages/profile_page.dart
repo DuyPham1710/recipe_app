@@ -43,9 +43,7 @@ class ProfilePage extends StatelessWidget {
             // Avatar
             CircleAvatar(
               radius: 40.r,
-              backgroundImage: AssetImage(
-                "assets/images/avt.jpg",
-              ), // thay ảnh thật
+              backgroundImage: AssetImage("assets/images/avt.jpg"),
             ),
             SizedBox(height: 8.h),
             Text(
@@ -141,7 +139,7 @@ class ProfilePage extends StatelessWidget {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(12.r),
                   child: Image.asset(
-                    "assets/images/recipe_cart.jpg", // ảnh giả
+                    "assets/images/recipe_cart.jpg",
                     fit: BoxFit.cover,
                   ),
                 );

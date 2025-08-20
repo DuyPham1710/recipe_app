@@ -42,19 +42,20 @@ class RecipeCard extends StatelessWidget {
                     topLeft: Radius.circular(12.r),
                     topRight: Radius.circular(12.r),
                   ),
-                  child: meal.imageUrl != null
-                      ? Image.network(
-                          meal.imageUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 170.h,
-                        )
-                      : Image.network(
-                          'https://www.themealdb.com/images/media/meals/ursuup1487348423.jpg',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: 170.h,
-                        ),
+                  child: Image.network(
+                    meal.imageUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 170.h,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: double.infinity,
+                        height: 170.h,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.restaurant, color: Colors.grey[600]),
+                      );
+                    },
+                  ),
                 ),
 
                 if (rating != null)
@@ -166,7 +167,7 @@ class RecipeCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.primary, // giống hình
+                            color: AppColors.primary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
