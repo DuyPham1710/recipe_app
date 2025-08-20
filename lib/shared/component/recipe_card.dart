@@ -151,12 +151,7 @@ class RecipeCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 12.r,
-                        backgroundColor: Colors.grey[200],
-                        child: Icon(
-                          Icons.person,
-                          size: 16.r,
-                          color: Colors.grey,
-                        ),
+                        backgroundImage: AssetImage('assets/images/avt.jpg'),
                       ),
 
                       SizedBox(width: 8.w),
