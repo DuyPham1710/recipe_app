@@ -5,9 +5,46 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
 import 'package:recipe_app/features/recipe/presentation/pages/recipe_detail_page.dart';
 import 'package:recipe_app/shared/component/index.dart';
+import 'package:recipe_app/shared/services/save_service.dart';
 
-class SavedPage extends StatelessWidget {
+class SavedPage extends StatefulWidget {
   const SavedPage({super.key});
+
+  @override
+  State<SavedPage> createState() => _SavedPageState();
+}
+
+class _SavedPageState extends State<SavedPage> {
+  List<MealEntity> savedMeals = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedMeals();
+  }
+
+  Future<void> _loadSavedMeals() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final favorites = await SaveService.getSaved();
+      if (mounted) {
+        setState(() {
+          savedMeals = favorites;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,36 +101,35 @@ class SavedPage extends StatelessWidget {
 
             SizedBox(height: 30.h),
 
-            ListView.separated(
-              shrinkWrap: true, // <-- thêm dòng này
-              physics: NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              itemCount: 3,
-              separatorBuilder: (_, __) => SizedBox(height: 16.h),
-              itemBuilder: (context, index) {
-                final meal = MealEntity(
-                  id: "${index + 1}",
-                  name: "Recipe ${index + 1}",
-                  imageUrl:
-                      "https://www.themealdb.com/images/category/beef.png",
-                );
-                return RecipeCard(
-                  meal: meal,
-                  author: "Đình Trọng Phú",
-                  time: "1 tiếng 20 phút",
-                  rating: "5",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RecipeDetailPage(meal: meal),
-                      ),
-                    );
-                  },
-                  onLike: () {},
-                );
-              },
-            ),
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemCount: savedMeals.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 16.h),
+                    itemBuilder: (context, index) {
+                      final meal = savedMeals[index];
+
+                      return RecipeCard(
+                        meal: meal,
+                        author: "Đình Trọng Phú",
+                        time: "1 tiếng 20 phút",
+                        rating: "5",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  RecipeDetailPage(meal: meal),
+                            ),
+                          );
+                        },
+                        onLike: () {},
+                      );
+                    },
+                  ),
           ],
         ),
       ),

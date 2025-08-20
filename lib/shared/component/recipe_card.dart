@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
 import '../../core/constants/app_colors.dart';
+import '../../shared/services/favorite_service.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeCard extends StatefulWidget {
   final MealEntity meal;
   final String author;
   final String? time;
@@ -22,7 +23,50 @@ class RecipeCard extends StatelessWidget {
   });
 
   @override
+  State<RecipeCard> createState() => _RecipeCardState();
+}
+
+class _RecipeCardState extends State<RecipeCard> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    final isFavorite = await FavoriteService.isFavorite(widget.meal.id);
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFavorite;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isFavorite) {
+      await FavoriteService.removeFromFavorites(widget.meal.id);
+    } else {
+      await FavoriteService.addToFavorites(widget.meal);
+    }
+
+    if (mounted) {
+      setState(() {
+        _isFavorite = !_isFavorite;
+      });
+    }
+
+    widget.onLike?.call();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final meal = widget.meal;
+    final onTap = widget.onTap;
+    final rating = widget.rating;
+    final author = widget.author;
+    final time = widget.time;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -77,7 +121,7 @@ class RecipeCard extends StatelessWidget {
                           Icon(Icons.star, color: Colors.white, size: 14.sp),
                           SizedBox(width: 2.w),
                           Text(
-                            rating!,
+                            rating,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12.sp,
@@ -109,7 +153,7 @@ class RecipeCard extends StatelessWidget {
                 children: [
                   if (time != null)
                     Text(
-                      time!,
+                      time,
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 12.sp,
@@ -118,10 +162,10 @@ class RecipeCard extends StatelessWidget {
                     ),
 
                   GestureDetector(
-                    onTap: onLike,
+                    onTap: _toggleFavorite,
                     child: Icon(
-                      Icons.favorite_border,
-                      color: Colors.black87,
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: _isFavorite ? Colors.red : Colors.black87,
                       size: 20.sp,
                     ),
                   ),

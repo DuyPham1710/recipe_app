@@ -1,14 +1,50 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/core/constants/app_colors.dart';
 import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
 import 'package:recipe_app/features/recipe/presentation/pages/recipe_detail_page.dart';
+import 'package:recipe_app/shared/services/favorite_service.dart';
 
-class SearchResultItem extends StatelessWidget {
+class SearchResultItem extends StatefulWidget {
   const SearchResultItem({super.key, required this.meal});
 
   final MealEntity meal;
+
+  @override
+  State<SearchResultItem> createState() => _SearchResultItemState();
+}
+
+class _SearchResultItemState extends State<SearchResultItem> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFavoriteStatus();
+  }
+
+  Future<void> _checkFavoriteStatus() async {
+    final isFavorite = await FavoriteService.isFavorite(widget.meal.id);
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFavorite;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isFavorite) {
+      await FavoriteService.removeFromFavorites(widget.meal.id);
+    } else {
+      await FavoriteService.addToFavorites(widget.meal);
+    }
+
+    if (mounted) {
+      setState(() {
+        _isFavorite = !_isFavorite;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +52,9 @@ class SearchResultItem extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => RecipeDetailPage(meal: meal)),
+          MaterialPageRoute(
+            builder: (_) => RecipeDetailPage(meal: widget.meal),
+          ),
         );
       },
       child: Container(
@@ -41,7 +79,7 @@ class SearchResultItem extends StatelessWidget {
                     top: Radius.circular(12.r),
                   ),
                   child: Image.network(
-                    meal.imageUrl,
+                    widget.meal.imageUrl,
                     height: 160.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -55,10 +93,17 @@ class SearchResultItem extends StatelessWidget {
                     },
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   top: 8,
                   right: 8,
-                  child: Icon(CupertinoIcons.heart_fill, color: Colors.red),
+                  child: GestureDetector(
+                    onTap: _toggleFavorite,
+                    child: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: _isFavorite ? Colors.red : Colors.black87,
+                      size: 20.sp,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -70,7 +115,7 @@ class SearchResultItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    meal.name,
+                    widget.meal.name,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16.sp,

@@ -2,10 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/core/constants/app_colors.dart';
 import 'package:recipe_app/core/constants/app_strings.dart';
+import 'package:recipe_app/features/profile/presentation/widgets/favorite_meal_item.dart';
 import 'package:recipe_app/shared/component/index.dart';
+import 'package:recipe_app/shared/services/favorite_service.dart';
+import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  List<MealEntity> _favoriteMeals = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  Future<void> _loadFavorites() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final favorites = await FavoriteService.getFavorites();
+      if (mounted) {
+        setState(() {
+          _favoriteMeals = favorites;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,26 +164,25 @@ class ProfilePage extends StatelessWidget {
             SizedBox(height: 12.h),
 
             // Grid list
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 9, // fake data
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8.w,
-                mainAxisSpacing: 8.h,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: Image.asset(
-                    "assets/images/recipe_cart.jpg",
-                    fit: BoxFit.cover,
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _favoriteMeals.isEmpty
+                ? _buildEmptyFavorites()
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _favoriteMeals.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8.w,
+                      mainAxisSpacing: 8.h,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final meal = _favoriteMeals[index];
+                      return FavoriteMealItem(meal: meal);
+                    },
                   ),
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -157,6 +195,13 @@ class ProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh favorites khi quay lại page
+    _loadFavorites();
   }
 
   Widget _buildStatItem(String label, String value) {
@@ -172,6 +217,30 @@ class ProfilePage extends StatelessWidget {
           style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyFavorites() {
+    return Container(
+      padding: EdgeInsets.all(32.w),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.favorite_border, size: 64.sp, color: Colors.grey[400]),
+          SizedBox(height: 16.h),
+          Text(
+            'Chưa có món ăn yêu thích nào',
+            style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Hãy tym những món ăn bạn thích!',
+            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
