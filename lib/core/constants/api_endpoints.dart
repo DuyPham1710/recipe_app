@@ -2,7 +2,7 @@ class ApiEndpoints {
   // Categories
   static const String listCategory = 'list.php';
   static const String categories = 'categories.php';
-  static const String filterByCategory = 'filter.php';
+
   // Meals
   static const String mealsByCategory = 'filter.php';
   static const String mealById = 'lookup.php';
@@ -14,4 +14,7 @@ class ApiEndpoints {
 
   // Ingredients
   static const String ingredients = 'list.php?i=list';
+
+  // Filters
+  static const String filter = 'filter.php';
 }

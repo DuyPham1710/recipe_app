@@ -15,3 +15,12 @@ class LoadMealsByCategory extends MealEvent {
   @override
   List<Object> get props => [category];
 }
+
+class LoadMealsByLocation extends MealEvent {
+  final String location;
+
+  const LoadMealsByLocation(this.location);
+
+  @override
+  List<Object> get props => [location];
+}

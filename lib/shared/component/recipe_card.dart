@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:recipe_app/features/home/domain/entities/meal_entity.dart';
 import '../../core/constants/app_colors.dart';
 
 class RecipeCard extends StatelessWidget {
-  final String title;
+  final MealEntity meal;
   final String author;
   final String? time;
   final String? rating;
@@ -12,7 +13,7 @@ class RecipeCard extends StatelessWidget {
 
   const RecipeCard({
     super.key,
-    required this.title,
+    required this.meal,
     required this.author,
     this.time,
     this.rating,
@@ -41,12 +42,19 @@ class RecipeCard extends StatelessWidget {
                     topLeft: Radius.circular(12.r),
                     topRight: Radius.circular(12.r),
                   ),
-                  child: Image.asset(
-                    "assets/images/recipe_cart.jpg",
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 170.h,
-                  ),
+                  child: meal.imageUrl != null
+                      ? Image.network(
+                          meal.imageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 170.h,
+                        )
+                      : Image.network(
+                          'https://www.themealdb.com/images/media/meals/ursuup1487348423.jpg',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 170.h,
+                        ),
                 ),
 
                 if (rating != null)
@@ -126,13 +134,13 @@ class RecipeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    meal.name,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w400,
                       color: AppColors.textPrimary,
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
 

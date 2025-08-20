@@ -1,25 +1,23 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:recipe_app/features/home/domain/usecases/get_meal_by_location_usecase.dart';
-import 'package:recipe_app/features/home/domain/usecases/get_meals_by_category_usecase.dart';
 import 'package:recipe_app/features/home/presentation/bloc/meal_event.dart';
 import 'package:recipe_app/features/home/presentation/bloc/meal_state.dart';
 
-class MealBloc extends Bloc<MealEvent, MealState> {
-  final GetMealsByCategoryUseCase _getMealsByCategoryUseCase;
+class LocationMealBloc extends Bloc<MealEvent, MealState> {
+  final GetMealByLocationUsecase _getMealByLocationUsecase;
 
-  MealBloc(this._getMealsByCategoryUseCase)
+  LocationMealBloc(this._getMealByLocationUsecase)
       : super(MealInitial()) {
-    on<LoadMealsByCategory>(_onLoadMealsByCategory);
+    on<LoadMealsByLocation>(_onLoadMealsByLocation);
   }
 
-  Future<void> _onLoadMealsByCategory(
-    LoadMealsByCategory event,
+  Future<void> _onLoadMealsByLocation(
+    LoadMealsByLocation event,
     Emitter<MealState> emit,
   ) async {
     emit(MealLoading());
-
     try {
-      final meals = await _getMealsByCategoryUseCase(event.category);
+      final meals = await _getMealByLocationUsecase(event.location);
       emit(MealLoaded(meals));
     } catch (e) {
       emit(MealError(e.toString()));

@@ -11,6 +11,8 @@ class CustomButton extends StatelessWidget {
   final double? height;
   final Widget? icon;
   final bool isOutlined;
+  final bool iconLeft;
+  final bool isBold;
 
   const CustomButton({
     super.key,
@@ -22,6 +24,8 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.icon,
     this.isOutlined = false,
+    this.iconLeft = false,
+    this.isBold = false,
   });
 
   @override
@@ -43,17 +47,22 @@ class CustomButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
           ),
-          elevation: isOutlined ? 0 : 2,
+          //    elevation: isOutlined ? 0 : 2,
+          elevation: 0,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (icon != null && iconLeft) ...[icon!, SizedBox(width: 8.w)],
             Text(
               text,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              ),
             ),
 
-            if (icon != null) ...[SizedBox(width: 8.w), icon!],
+            if (icon != null && !iconLeft) ...[SizedBox(width: 8.w), icon!],
           ],
         ),
       ),

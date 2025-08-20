@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:recipe_app/features/recipe/presentation/bloc/meal_detail_bloc.dart';
 import 'core/constants/app_colors.dart';
 import 'features/home/presentation/pages/onboarding_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
@@ -41,6 +42,15 @@ class MyApp extends StatelessWidget {
                 create: (context) =>
                     MealBloc(GetMealsByCategoryUseCase(MealRepositoryImpl())),
               ),
+              BlocProvider<LocationMealBloc>(
+                create: (context) => LocationMealBloc(
+                  GetMealByLocationUsecase(MealRepositoryImpl()),
+                ),
+              ),
+              BlocProvider<MealDetailBloc>(
+                create: (context) =>
+                    MealDetailBloc(GetMealByIdUseCase(MealRepositoryImpl())),
+              ),
             ],
             child: const OnboardingPage(),
           ),
@@ -55,6 +65,15 @@ class MyApp extends StatelessWidget {
                 BlocProvider<MealBloc>(
                   create: (context) =>
                       MealBloc(GetMealsByCategoryUseCase(MealRepositoryImpl())),
+                ),
+                BlocProvider<LocationMealBloc>(
+                  create: (context) => LocationMealBloc(
+                    GetMealByLocationUsecase(MealRepositoryImpl()),
+                  ),
+                ),
+                BlocProvider<MealDetailBloc>(
+                  create: (context) =>
+                      MealDetailBloc(GetMealByIdUseCase(MealRepositoryImpl())),
                 ),
               ],
               child: const HomePage(),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:recipe_app/features/home/presentation/bloc/meal_bloc.dart';
 import 'package:recipe_app/features/home/presentation/bloc/meal_state.dart';
+import 'package:recipe_app/features/recipe/presentation/pages/recipe_detail_page.dart';
 import 'package:recipe_app/shared/component/category_item.dart';
 
 class MealsListWidget extends StatelessWidget {
@@ -58,11 +59,21 @@ class MealsListWidget extends StatelessWidget {
                   padding: EdgeInsets.only(
                     right: index < state.meals.length - 1 ? 16.w : 0,
                   ),
-                  child: CategoryItem(
-                    image: meal.imageUrl,
-                    title: meal.name,
-                    author: "Trần Đình Trọng", // API không cung cấp author
-                    time: "30 phút", // API không cung cấp thời gian
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RecipeDetailPage(meal: meal),
+                        ),
+                      );
+                    },
+                    child: CategoryItem(
+                      image: meal.imageUrl,
+                      title: meal.name,
+                      author: "Trần Đình Trọng", // API không cung cấp author
+                      time: "30 phút", // API không cung cấp thời gian
+                    ),
                   ),
                 );
               },
