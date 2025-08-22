@@ -29,19 +29,30 @@ Recipe App is a comprehensive mobile application that allows users to discover, 
 ## App Interface
 
 ### 1. Onboarding & Home Screen
-![Onboarding Screen](assets/images/onboard.jpg)
+<img src="assets/images/onboard.jpg" width="300"/>
 
-### 2. Recipe Categories & Discovery
-![Categories](assets/images/home_1.jpg)
+### 2. Home Screen
+<img src="assets/images/home_1.jpg" width="300"/>
+<img src="assets/images/home_2.jpg" width="300"/>
 
 ### 3. Recipe Details & Information
-![Recipe Detail](assets/images/recipe_detail.jpg)
+<img src="assets/images/recipe_detail.jpg" width="300"/>
+<img src="assets/images/recipe_detail_2.jpg" width="300"/>
+<img src="assets/images/recipe_detail_3.jpg" width="300"/>
 
-### 4. Search & Filtering
-![Search Interface](assets/images/search.jpg)
+### 4. Search
+<img src="assets/images/search.jpg" width="300"/>
+<img src="assets/images/search_result.jpg" width="300"/>
 
-### 5. User Profile & Favorites
-![Profile Interface](assets/images/profile.jpg)
+### 5. Filter 
+<img src="assets/images/filter.jpg" width="300"/>
+<img src="assets/images/apply_filter.jpg" width="300"/>
+
+### 6. User Profile & Favorites
+<img src="assets/images/profile.jpg" width="300"/>
+
+### 7. Save recipe Screen
+<img src="assets/images/save_recipe.jpg" width="300"/>
 
 ## Getting Started
 
